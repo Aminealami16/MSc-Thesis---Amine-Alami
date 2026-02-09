@@ -10,7 +10,7 @@ def rod_model(EA, L, rho, A, omega):
     alpha = 0.0  # mass proportional damping
     beta_damp = 0 # stiffness proportional damping (adjust as needed)
 
-    # Element dynamic stiffness matrix (undamped)
+    # Element dynamic stiffness matrix (undamped) frequency domain
     k_e = EA * beta * np.array([[1 / np.tan(beta*L), -1 / np.sin(beta*L)],
                                 [-1 / np.sin(beta*L), 1 / np.tan(beta*L)]])
 
@@ -26,4 +26,3 @@ def rod_model(EA, L, rho, A, omega):
     
     return k_e
 
-    
