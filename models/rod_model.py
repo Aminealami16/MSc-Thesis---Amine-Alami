@@ -1,6 +1,6 @@
 import numpy as np
 
-def rod_model(EA, L, rho, A, omega):
+def rod_model2D(EA, L, rho, A, omega):
 
     """Generate element dynamic stiffness matrix for a 1D rod element."""
 

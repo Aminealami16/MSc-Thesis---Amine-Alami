@@ -1,7 +1,7 @@
 from matplotlib.pylab import beta
 import numpy as np
 
-def euler_bernoulli_model(E, I, rho, A, L, omega):
+def euler_bernoulli_model2D(E, I, rho, A, L, omega):
 
     beta = (rho * A * omega**2 / (E * I))**(1/4)
 
@@ -113,6 +113,8 @@ def euler_bernoulli_model(E, I, rho, A, L, omega):
     
     return k_dyn
 
+
+def euler_bernoulli_model3D(E, I, rho, A, L, omega):
 
 
 

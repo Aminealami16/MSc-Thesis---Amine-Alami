@@ -1,347 +1,193 @@
 import numpy as np
 
-def timoshenko_model(G, E, I, rho, A, omega, L, kappa=5/6):
-    """Generate element stiffness and mass matrices for a Timoshenko beam element."""
 
-    # Dynamic stiffness matrix
-
-
-    # Wave numbers for bending and shear deformation:
-    a = (kappa* G * A * rho * I * omega**2  - E * I * rho * A * omega**2)  / (E* I * kappa * G * A)
-    b = ((kappa * G * A - rho * I * omega**2) * rho * A * omega**2) / (E * I * kappa * G * A)
-    lambda_1 = np.emath.sqrt(a + np.emath.sqrt(a**2 + 4*b) / 2)
-    lambda_2 = np.emath.sqrt(a - np.emath.sqrt(a**2 + 4*b) / 2)
-
-    # Factor needed for the rotation function
-
-    alpha_1 = -(kappa * G * A * lambda_1) / (kappa * G * A - rho * I * omega**2 - E * I * lambda_1**2)
-    alpha_2 = -(kappa * G * A * lambda_2) / (kappa * G * A - rho * I * omega**2 - E * I * lambda_2**2)
-
-
-
-    numerator11 = -kappa * np.exp(2 * lambda_1 * L) * (-alpha_1 * lambda_2 + alpha_2 * lambda_1) * (
-    np.exp(L * (lambda_1 - lambda_2)) + np.exp(L * (lambda_1 + lambda_2)) -
-    np.exp(L * (3 * lambda_1 - lambda_2)) - np.exp(L * (3 * lambda_1 + lambda_2)))
-
-    denominator11 = ((alpha_1 + alpha_2) * np.exp(L * (3 * lambda_1 - lambda_2)) +
-                     (-alpha_1 + alpha_2) * np.exp(L * (5 * lambda_1 - lambda_2)) -
-                     2 * alpha_2 * np.exp(2 * L * (2 * lambda_1 + lambda_2)) +
-                     (-alpha_1 + 3 * alpha_2) * np.exp(L * (3 * lambda_1 + lambda_2)) +
-                     (alpha_1 + 3 * alpha_2) * np.exp(L * (5 * lambda_1 + lambda_2)) -
-                     2 * alpha_2 * (np.exp(2 * lambda_1 * L) + np.exp(4 * lambda_1 * L) + np.exp(6 * lambda_1 * L)))
-    
-
-    numerator12 = kappa * (
-              alpha_1 * (lambda_1 + lambda_2 + alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2)) -
-              alpha_1 * (lambda_1 - lambda_2 + alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2)) -
-              2 * alpha_2 * (lambda_1 + alpha_1) * np.exp(2*L*(2*lambda_1 + lambda_2)) +
-              (-alpha_1**2 + (-lambda_1 + lambda_2 + 3*alpha_2)*alpha_1 + 2*alpha_2*lambda_1) * np.exp(L*(3*lambda_1 + lambda_2)) +
-              (alpha_1**2 + (lambda_1 + lambda_2 + 3*alpha_2)*alpha_1 + 2*alpha_2*lambda_1) * np.exp(L*(5*lambda_1 + lambda_2)) -
-              2 * alpha_1 * (lambda_2 + alpha_2) * np.exp(2*lambda_1*L) -
-              2 * alpha_2 * (lambda_1 + alpha_1) * np.exp(4*lambda_1*L) -
-              2 * alpha_1 * (lambda_2 + alpha_2) * np.exp(6*lambda_1*L))
-
-    denominator12 = (
-              ( (alpha_1 + alpha_2) * np.exp(L*(3*lambda_1 - lambda_2)) +
-              (-alpha_1 + alpha_2) * np.exp(L*(5*lambda_1 - lambda_2)) -
-              2 * alpha_2 * np.exp(2*L*(2*lambda_1 + lambda_2)) +
-              (-alpha_1 + 3*alpha_2) * np.exp(L*(3*lambda_1 + lambda_2)) +
-              (alpha_1 + 3*alpha_2) * np.exp(L*(5*lambda_1 + lambda_2)) -
-              2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-              ) * alpha_1)
-
-
-    numerator13 = 2 * kappa * np.exp(3 * lambda_1 * L) * (np.exp(2 * lambda_1 * L) - 1) * (-alpha_1 * lambda_2 + alpha_2 * lambda_1)
-
-    denominator13 = (
-              (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2)) +
-              (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2)) +
-              2 * alpha_2 * np.exp(2*L*(2*lambda_1 + lambda_2)) +
-              (alpha_1 - 3*alpha_2) * np.exp(L*(3*lambda_1 + lambda_2)) +
-              (-alpha_1 - 3*alpha_2) * np.exp(L*(5*lambda_1 + lambda_2)) +
-              2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L)))
-
-    numerator14 = -kappa * np.exp(2 * lambda_1 * L) * (-alpha_1 * lambda_2 + alpha_2 * lambda_1) * (
-              np.exp(L * (lambda_1 - lambda_2)) + np.exp(L * (lambda_1 + lambda_2)) -
-              np.exp(L * (3 * lambda_1 - lambda_2)) - np.exp(L * (3 * lambda_1 + lambda_2)))
-
-    denominator14 = (
-              (alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2)) +
-              (-alpha_1 + alpha_2) * np.exp(L * (5*lambda_1 - lambda_2)) -
-              2 * alpha_2 * np.exp(2*L*(2*lambda_1 + lambda_2)) +
-              (-alpha_1 + 3*alpha_2) * np.exp(L*(3*lambda_1 + lambda_2)) +
-              (alpha_1 + 3*alpha_2) * np.exp(L*(5*lambda_1 + lambda_2)) -
-              2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L)))
-
- 
-
-    # --- Numerator (numerator21) ---
-    numerator21 = (
-       -E * I * np.exp(2 * lambda_1 * L) * alpha_1 * alpha_2 *
-       (
-              (lambda_1 + lambda_2) * np.exp(L * (3*lambda_1 - lambda_2))
-              + (lambda_1 + lambda_2) * np.exp(L * (3*lambda_1 + lambda_2))
-              + (lambda_1 - lambda_2) * np.exp(L * (lambda_1 - lambda_2))
-              - 2 * lambda_1 * np.exp(2 * L * (lambda_1 + lambda_2))
-              + (lambda_1 - lambda_2) * np.exp(L * (lambda_1 + lambda_2))
-              - 2 * lambda_1 * np.exp(2 * lambda_1 * L)))
-
-# --- Denominator (denominator21) ---
-    denominator21 = (
-       (alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (-alpha_1 + alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       - 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (-alpha_1 + 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (alpha_1 + 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       - 2 * alpha_2 * (
-              np.exp(2 * lambda_1 * L)
-              + np.exp(4 * lambda_1 * L)
-              + np.exp(6 * lambda_1 * L)))
-
-
-
-    k11 = numerator11 / denominator11
-    k12 = numerator12 / denominator12
-    k13 = numerator13 / denominator13
-    k14 = numerator14 / denominator14
-
-    k21 = numerator21 / denominator21
-# ========= k22 =========
-    k22 = (
-       (E * I) * (
-              (alpha_1 * lambda_1 + alpha_2 * lambda_2) * np.exp(L * (3*lambda_1 - lambda_2))
-              + (alpha_1 * lambda_1 + alpha_2 * lambda_2) * np.exp(L * (5*lambda_1 - lambda_2))
-              + (((-2*lambda_1 + lambda_2) * alpha_2) - alpha_1 * lambda_1) * np.exp(L * (3*lambda_1 + lambda_2))
-              + (((2*lambda_1 + lambda_2) * alpha_2) - alpha_1 * lambda_1) * np.exp(L * (5*lambda_1 + lambda_2))
-              - 2 * lambda_2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-       ) / (
-       (alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (-alpha_1 + alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       - 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (-alpha_1 + 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (alpha_1 + 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       - 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k23 =========
-    k23 = (
-       2 * E * I * alpha_1 * alpha_2 * np.exp(3*lambda_1*L) *
-       (
-              -lambda_1 * np.exp(2*lambda_1*L)
-              - lambda_2 * np.exp(2*lambda_1*L)
-              + 2 * lambda_1 * np.exp(L*(lambda_1 + lambda_2))
-              - lambda_1
-              + lambda_2
-       )
-       ) / (
-       (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       + 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (alpha_1 - 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (-alpha_1 - 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       + 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k24 =========
-    k24 = -(
-       (E * I) * alpha_2 * alpha_1 * np.exp(2*lambda_1*L) * (
-              (lambda_1 + lambda_2) * np.exp(L * (3*lambda_1 - lambda_2))
-              + (lambda_1 + lambda_2) * np.exp(L * (3*lambda_1 + lambda_2))
-              + (lambda_1 - lambda_2) * np.exp(L * (lambda_1 - lambda_2))
-              - 2 * lambda_1 * np.exp(2 * L * (lambda_1 + lambda_2))
-              + (lambda_1 - lambda_2) * np.exp(L * (lambda_1 + lambda_2))
-              - 2 * lambda_1 * np.exp(2*lambda_1*L)
-       )
-       ) / (
-       (alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (-alpha_1 + alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       - 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (-alpha_1 + 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (alpha_1 + 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       - 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k31 =========
-    k31 = (
-       kappa * G * A * (
-              alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 - lambda_2))
-              - alpha_2 * (lambda_1 + lambda_2) * np.exp(L * (3*lambda_1 + 2*lambda_2))
-              + alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (5*lambda_1 + 2*lambda_2))
-              - alpha_2 * (lambda_1 + lambda_2) * np.exp(L * (6*lambda_1 - lambda_2))
-              + alpha_2 * (lambda_1 + lambda_2) * np.exp(L * (2*lambda_1 + lambda_2))
-              - alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (6*lambda_1 + lambda_2))
-              + (((-lambda_1 + lambda_2) * alpha_2) - 2 * alpha_1 * lambda_2) * np.exp(3*lambda_1*L)
-              + (alpha_2 * (lambda_1 + lambda_2) + 2*alpha_1*lambda_2) * np.exp(5*lambda_1*L)
-       )
-       ) / (
-       (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       + 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (alpha_1 - 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (-alpha_1 - 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       + 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k32 =========
-    k32 = (
-       kappa * G * A * (
-                     -alpha_1 * (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 - lambda_2))
-              + alpha_2 * (lambda_1 + lambda_2) * np.exp(L * (3*lambda_1 + 2*lambda_2))
-              + alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (5*lambda_1 + 2*lambda_2))
-              + alpha_1 * (lambda_1 + lambda_2) * np.exp(L * (6*lambda_1 - lambda_2))
-              + alpha_1 * (lambda_1 + lambda_2) * np.exp(L * (2*lambda_1 + lambda_2))
-              - alpha_1 * (lambda_1 - lambda_2) * np.exp(L * (6*lambda_1 + lambda_2))
-              - 4 * lambda_1 * alpha_2 * np.exp(L * (4*lambda_1 + lambda_2))
-              + (alpha_2 * (lambda_1 - lambda_2) - 2 * alpha_1 * lambda_2) * np.exp(3*lambda_1*L)
-              + (alpha_2 * (lambda_1 + lambda_2) - 2 * alpha_1 * lambda_2) * np.exp(5*lambda_1*L)
-       )
-       ) / (
-       (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       + 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (alpha_1 - 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (-alpha_1 - 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       + 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k33 =========
-    k33 = -(
-       kappa * G * A * (
-              lambda_2 * (alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-              - lambda_2 * (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-              + 2 * lambda_2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-              + ((2*lambda_1 - lambda_2) * alpha_2 + alpha_1 * lambda_2)
-              * np.exp(L * (3*lambda_1 + lambda_2))
-              + ((-2*lambda_1 - lambda_2) * alpha_2 - alpha_1 * lambda_2)
-              * np.exp(L * (5*lambda_1 + lambda_2))
-              - 2 * alpha_2 * (
-              lambda_1 * np.exp(2*lambda_1*L)
-              - lambda_1 * np.exp(6*lambda_1*L)
-              + lambda_2 * np.exp(4*lambda_1*L)
-                     )
-              )
-              ) / (
-              (alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-              + (-alpha_1 + alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-              - 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-              + (-alpha_1 + 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-              + (alpha_1 + 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-              - 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-              )
-
-
-# ========= k34 (same structure as k31) =========
-    k34 = (
-              kappa * G * A * (
-                     alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 - lambda_2))
-                     - alpha_2 * (lambda_1 + lambda_2) * np.exp(L * (3*lambda_1 + 2*lambda_2))
-                     + alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (5*lambda_1 + 2*lambda_2))
-                     - alpha_2 * (lambda_1 + lambda_2) * np.exp(L * (6*lambda_1 - lambda_2))
-                     + alpha_2 * (lambda_1 + lambda_2) * np.exp(L * (2*lambda_1 + lambda_2))
-                     - alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (6*lambda_1 + lambda_2))
-                     + (((-lambda_1 + lambda_2) * alpha_2) - 2 * alpha_1 * lambda_2) * np.exp(3*lambda_1*L)
-                     + (alpha_2 * (lambda_1 + lambda_2) + 2*alpha_1*lambda_2) * np.exp(5*lambda_1*L)
-              )
-              ) / (
-              (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-              + (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-              + 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-              + (alpha_1 - 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-              + (-alpha_1 - 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-              + 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-              )
-
-
-# ========= k41 =========
-    k41 = -(
-       np.exp(L * (3*lambda_1 - lambda_2)) * E * I * alpha_2 * (
-              (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 + 3*lambda_2))
-              + (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 + lambda_2))
-              - 2 * lambda_1 * np.exp(L * (lambda_1 + 2*lambda_2))
-              + (lambda_1 + lambda_2) * np.exp(3*lambda_2*L)
-              + (lambda_1 + lambda_2) * np.exp(lambda_2*L)
-              - 2 * lambda_1 * np.exp(lambda_1*L)
-       ) * alpha_1
-       ) / (
-       (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       + 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (alpha_1 - 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (-alpha_1 - 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       + 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k42 =========
-    k42 = -(
-       (
-              -alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 + 3*lambda_2))
-              + 2 * alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (3*lambda_1 + 2*lambda_2))
-              - 2 * alpha_2 * (lambda_1 + lambda_2) * np.exp(-L * (lambda_1 - 2*lambda_2))
-              - alpha_2 * (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 + lambda_2))
-              - 2 * lambda_1 * alpha_1 * np.exp(L * (lambda_1 + 2*lambda_2))
-              + alpha_2 * (lambda_1 + lambda_2) * np.exp(3*lambda_2 * L)
-              + alpha_2 * (lambda_1 + lambda_2) * np.exp(lambda_2 * L)
-              + 2 * lambda_1 * alpha_1 * np.exp(lambda_1 * L)
-       ) * np.exp(L * (3*lambda_1 - lambda_2)) * E * I
-       ) / (
-       (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       + 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (alpha_1 - 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (-alpha_1 - 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       + 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k43 =========
-    k43 = (
-       2 * E * I * alpha_1 * alpha_2 * np.exp(L * (3*lambda_1 + lambda_2)) *
-       (
-              -lambda_1 * np.exp(2*lambda_1*L)
-              + lambda_2 * np.exp(2*lambda_1*L)
-              + 2 * lambda_1 * np.exp(L * (lambda_1 - lambda_2))
-              - lambda_1
-              - lambda_2
-       )
-       ) / (
-       (alpha_1 + alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (-alpha_1 + alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       - 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (-alpha_1 + 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (alpha_1 + 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       - 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
-
-
-# ========= k44 =========
-    k44 = -(
-       np.exp(L * (3*lambda_1 - lambda_2)) * E * I * alpha_2 * (
-              (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 + 3*lambda_2))
-              + (lambda_1 - lambda_2) * np.exp(L * (2*lambda_1 + lambda_2))
-              - 2 * lambda_1 * np.exp(L * (lambda_1 + 2*lambda_2))
-              + (lambda_1 + lambda_2) * np.exp(3*lambda_2 * L)
-              + (lambda_1 + lambda_2) * np.exp(lambda_2 * L)
-              - 2 * lambda_1 * np.exp(lambda_1 * L)
-       ) * alpha_1
-       ) / (
-       (-alpha_1 - alpha_2) * np.exp(L * (3*lambda_1 - lambda_2))
-       + (alpha_1 - alpha_2) * np.exp(L * (5*lambda_1 - lambda_2))
-       + 2 * alpha_2 * np.exp(2 * L * (2*lambda_1 + lambda_2))
-       + (alpha_1 - 3*alpha_2) * np.exp(L * (3*lambda_1 + lambda_2))
-       + (-alpha_1 - 3*alpha_2) * np.exp(L * (5*lambda_1 + lambda_2))
-       + 2 * alpha_2 * (np.exp(2*lambda_1*L) + np.exp(4*lambda_1*L) + np.exp(6*lambda_1*L))
-       )
+def M_local(ex,ey,ez,ep_M):
        
+## Function that contains the mass matrix for a Timoshenko beam element in local coordinate system
+## Input: 
+              ## ex = [x1, x2] [m]
+              ## ey = [y1, y2] [m]
+              ## ez = [z1, z2] [m]
+              ## ep_M = [rho, A, Iy, Iz, Ip]
+                     # rho: density [kg/m^3]
+                     # A: cross section area [m^2]
+                     # Iy: moment of inertia with respect to local y axis [m^4]
+                     # Iz: moment of inertia with respect to local z axis [m^4]
+                     # Ip: polar moment of inertia [m^4]
+## Output: matrix of 12x12 containing the mass matrix of a three-dimensional 2-node Timoshenko beam element
 
-    k_e = np.array([[k11, k12, k13, k14], 
-                             [k21, k22, k23, k24], 
-                             [k31, k32, k33, k34], 
-                             [k41, k42, k43, k44]])
-    return k_e
+       L   = np.sqrt((ex[0]-ex[1])**2+(ey[0]-ey[1])**2+(ez[0]-ez[1])**2)
+       rho = ep_M[0]
+       A   = ep_M[1]
+       Iy  = ep_M[2]
+       Iz  = ep_M[3]
+       Ip  = ep_M[4]
+       
+       me  = rho * A * L
+       
+       Me11 = np.asmatrix([[1/3 ,0                       ,0                       ,0        ,0                       ,0],
+                                     [0   ,13/35 + 6*Iz/(5*A*L**2) ,0                       ,0        ,0                       ,11*L/210 + Iz/(10*A*L)],
+                                     [0   ,0                       ,13/35 + 6*Iy/(5*A*L**2) ,0        ,-11*L/210 - Iy/(10*A*L) ,0],
+                                     [0   ,0                       ,0                       ,Ip/(3*A) ,0                       ,0],
+                                     [0   ,0                       ,-11*L/210 - Iy/(10*A*L) ,0        ,L**2/105 + 2*Iy/(15*A)  ,0],
+                                     [0   ,11*L/210 + Iz/(10*A*L)  ,0                       ,0        ,0                       ,L**2/105 + 2*Iz/(15*A)],
+                                    ])
+       
+       Me21 = np.asmatrix([[1/6 ,0                       ,0                       ,0        ,0                       ,0],
+                                     [0   ,9/70 - 6*Iz/(5*A*L**2)  ,0                       ,0        ,0                       ,13*L/420 - Iz/(10*A*L)],
+                                     [0   ,0                       ,9/70 - 6*Iy/(5*A*L**2)  ,0        ,-13*L/420 + Iy/(10*A*L) ,0],
+                                     [0   ,0                       ,0                       ,Ip/(6*A) ,0                       ,0],
+                                     [0   ,0                       ,13*L/420 - Iy/(10*A*L)  ,0        ,-L**2/140 - Iy/(30*A)   ,0],
+                                     [0   ,-13*L/420 + Iz/(10*A*L) ,0                       ,0        ,0                       ,-L**2/140 - Iz/(30*A)],
+                                    ])
+
+       Me = np.zeros((12,12))
+       Me[0:6,0:6] = me * Me11
+       Me[6:,0:6]  = me * Me21
+       Me[0:6,6:]  = me * Me21.T
+       Me[6:,6:]   = -me * Me11 + 2 * me * np.diag(np.diagonal(Me11))
+   
+       return Me
+
+
+def K_local(ex,ey,ez,ep_K):
+       
+## Function that contains the stiffness matrix for a Timoshenko beam element in local coordinate system
+## Input: 
+              ## ex = [x1, x2] [m]
+              ## ey = [y1, y2] [m]
+              ## ez = [z1, z2] [m]
+              ## ep_K = [E, G, A, Iy, Iz, It, k]
+                     # E: modulus of elasticity [N/m^2]
+                     # G: shear modulus [N/m^2]
+                     # A: cross section area [m^2] 
+                     # Iy: moment of inertia with respect to local y axis [m^4]
+                     # Iz: moment of inertia with respect to local z axis [m^4]
+                     # It: torsional moment of inertia [m^4]
+                     # k: shear correction factor [-]
+## Output: matrix of 12x12 containing the stiffness matrix of a three-dimensional 2-node Timoshenko beam element
+
+       L  = np.sqrt((ex[0]-ex[1])**2+(ey[0]-ey[1])**2+(ez[0]-ez[1])**2)
+       E  = ep_K[0]
+       G  = ep_K[1]
+       A  = ep_K[2]
+       Iy = ep_K[3]
+       Iz = ep_K[4]
+       It = ep_K[5]
+       k  = ep_K[6]
+       
+       ke = 1 / L**3
+       Py = 12 * E * Iz / (G * A * k * L**2)
+       Pz = 12 * E * Iy / (G * A * k * L**2)
+       
+       Ke11 = np.asmatrix([[E*A*L**2 ,0               ,0                ,0         ,0                       ,0],
+                                     [0        ,12*E*Iz/(1+Py)  ,0                ,0         ,0                       ,6*E*Iz*L/(1+Py)],
+                                     [0        ,0               ,12*E*Iy/(1+Pz)   ,0         ,-6*E*Iy*L/(1+Pz)        ,0],
+                                     [0        ,0               ,0                ,G*It*L**2 ,0                       ,0],
+                                     [0        ,0               ,-6*E*Iy*L/(1+Pz) ,0         ,E*Iy*L**2*(4+Pz)/(1+Pz) ,0],
+                                     [0        ,6*E*Iz*L/(1+Py) ,0                ,0         ,0                       ,E*Iz*L**2*(4+Py)/(1+Py)],
+                                    ])
+       
+       Ke21 = np.asmatrix([[-E*A*L**2 ,0                ,0                ,0          ,0                       ,0],
+                                     [0         ,-12*E*Iz/(1+Py)  ,0                ,0          ,0                       ,-6*E*Iz*L/(1+Py)],
+                                     [0         ,0                ,-12*E*Iy/(1+Pz)  ,0          ,6*E*Iy*L/(1+Pz)         ,0],
+                                     [0         ,0                ,0                ,-G*It*L**2 ,0                       ,0],
+                                     [0         ,0                ,-6*E*Iy*L/(1+Pz) ,0          ,E*Iy*L**2*(2-Pz)/(1+Pz) ,0],
+                                     [0         ,6*E*Iz*L/(1+Py)  ,0                ,0          ,0                       ,E*Iz*L**2*(2-Py)/(1+Py)],
+                                    ])
+
+       Ke = np.zeros((12,12))
+       Ke[0:6,0:6] = ke * Ke11
+       Ke[6:,0:6]  = ke * Ke21
+       Ke[0:6,6:]  = ke * Ke21.T
+       Ke[6:,6:]   = -ke * Ke11 + 2 * ke * np.diag(np.diagonal(Ke11))
+   
+       return Ke
+
+
+def rotation(ex,ey,ez,eo):
+       
+## Function that contains the rotation matrix for a beam element
+## Input: 
+              ## ex = [x1, x2] [m]
+              ## ey = [y1, y2] [m]
+              ## ez = [z1, z2] [m]
+              ## eo = [xz, yz, zz] --> global vector parallel with the positive local z axis of the beam
+## Output: matrix of 12x12 containing the rotation matrix of a three-dimensional beam element
+       
+       b  = np.asmatrix([[ex[1]-ex[0]],[ey[1]-ey[0]],[ez[1]-ez[0]]])
+       L  = np.sqrt(b.T*b).item()
+       n1 = np.asarray(b.T/L).reshape(3,)
+       
+       eo = np.asmatrix(eo)
+       lc = np.sqrt(eo*eo.T).item()
+       n3 = np.asarray(eo/lc).reshape(3,)
+       
+       n2    = np.array([0.,0.,0.])
+       n2[0] = n3[1]*n1[2]-n3[2]*n1[1]
+       n2[1] = -n1[2]*n3[0]+n1[0]*n3[2]
+       n2[2] = n3[0]*n1[1]-n1[0]*n3[1]
+       
+       G = np.asmatrix([
+              [ n1[0], n1[1], n1[2], 0,     0,     0,     0,     0,     0,     0,     0,     0    ],
+              [ n2[0], n2[1], n2[2], 0,     0,     0,     0,     0,     0,     0,     0,     0    ],
+              [ n3[0], n3[1], n3[2], 0,     0,     0,     0,     0,     0,     0,     0,     0    ],
+              [ 0,     0,     0,     n1[0], n1[1], n1[2], 0,     0,     0,     0,     0,     0    ],
+              [ 0,     0,     0,     n2[0], n2[1], n2[2], 0,     0,     0,     0,     0,     0    ],
+              [ 0,     0,     0,     n3[0], n3[1], n3[2], 0,     0,     0,     0,     0,     0    ],
+              [ 0,     0,     0,     0,     0,     0,     n1[0], n1[1], n1[2], 0,     0,     0    ],
+              [ 0,     0,     0,     0,     0,     0,     n2[0], n2[1], n2[2], 0,     0,     0    ],
+              [ 0,     0,     0,     0,     0,     0,     n3[0], n3[1], n3[2], 0,     0,     0    ],
+              [ 0,     0,     0,     0,     0,     0,     0,     0,     0,     n1[0], n1[1], n1[2]],
+              [ 0,     0,     0,     0,     0,     0,     0,     0,     0,     n2[0], n2[1], n2[2]],
+              [ 0,     0,     0,     0,     0,     0,     0,     0,     0,     n3[0], n3[1], n3[2]]])
+       
+       return G
+
+
+def T_element(ex,ey,ez,eo,ep_K,ep_M):
+
+## Function that contains the mass and stiffness matrices for a Timoshenko beam element in global coordinate system
+## Input: 
+              ## ex = [x1, x2] [m]
+              ## ey = [y1, y2] [m]
+              ## ez = [z1, z2] [m]
+              ## eo = [xz, yz, zz] --> global vector parallel with the positive local z axis of the beam 
+              ## ep_K = [E, G, A, Iy, Iz, It, k]            
+                     # E: modulus of elasticity [N/m^2]
+                     # G: shear modulus [N/m^2]
+                     # A: cross section area [m^2] 
+                     # Iy: moment of inertia with respect to local y axis [m^4]
+                     # Iz: moment of inertia with respect to local z axis [m^4]
+                     # It: torsional moment of inertia [m^4]
+                     # k: shear correction factor [-]
+              ## ep_M = [rho, A, Iy, Iz, Ip]
+                     # rho: density [kg/m^3]
+                     # A: cross section area [m^2]
+                     # Iy: moment of inertia with respect to local y axis [m^4]
+                     # Iz: moment of inertia with respect to local z axis [m^4]
+                     # Ip: polar moment of inertia [m^4]
+## Output: matrices of 12x12 containing the mass and stiffness matrices of a three-dimensional 2-node Timoshenko beam element
+   
+       K_l = K_local(ex, ey, ez, ep_K)
+       M_l = M_local(ex, ey, ez, ep_M)
+       G   = rotation(ex,ey,ez,eo)
+       
+       K_e = G.T*K_l*G
+       M_e = G.T*M_l*G
+       
+       return M_e, K_e
+
+
+def dynamic_stiffness_matrix(ex, ey, ez, eo, ep_K, ep_M, omega):
+       
+## Function that contains the dynamic stiffness matrix for a Timoshenko beam element in global coordinate system
+## Input:
+                       ## Mass_matrix: matrix of 12x12 containing the mass matrix of a three-dimensional 2-node Timoshenko beam element
+                       ## Stiffness_matrix: matrix of 12x12 containing the stiffness matrix of a three-dimensional 2-node Timoshenko beam element
+                       ## omega: angular frequency [rad/s]
+
+          M_e, K_e = T_element(ex, ey, ez, eo, ep_K, ep_M)
+## Output: matrix of 12x12 containing the dynamic stiffness matrix of a three-dimensional 2-node Timoshenko beam element
+          K_dyn = K_e - omega**2 * M_e
+          return K_dyn
