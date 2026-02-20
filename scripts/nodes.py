@@ -22,12 +22,12 @@ def plot_nodes(nodes):
     Parameters:
     nodes (np.ndarray): A 3D array containing the coordinates of the nodes.
     """
-    fig = plt.figure()
+    fig = plt.figure(figsize=(15, 15))
     ax = fig.add_subplot(111, projection='3d')
 
     for i in range(len(nodes)):
         x, y, z = nodes[i]
-        ax.scatter(x, y, z)
+        ax.scatter(x, y, z, s=100)
         ax.text(x, y, z, f'  {i+1}', fontsize=8)
         ax.set_xlabel('X axis')
         ax.set_ylabel('Y axis')
@@ -35,5 +35,40 @@ def plot_nodes(nodes):
         ax.set_zlim(0, 100)
     plt.show()
 
+def plot_nodes2d(nodes):
+    """
+    Plot the nodes in 2D space (x-y plane).
+
+    Parameters:
+    nodes (np.ndarray): A 3D array containing the coordinates of the nodes.
+    """
+    fig, ax = plt.subplots(figsize=(20, 20))
+
+    for i in range(len(nodes)):
+        x, y, z = nodes[i]
+        ax.scatter(x, y, s=100)
+        ax.text(x, y, f'  {i+1}', fontsize=8)
+    
+    ax.set_xlabel('X axis')
+    ax.set_ylabel('Y axis')
+    ax.set_aspect('equal')
+    ax.grid(True)
+    plt.show()
+
 
     
+def degrees_of_freedom(nodes):
+    """
+    Assign degrees of freedom to each node.
+
+    Parameters:
+    nodes (np.ndarray): A 3D array containing the coordinates of the nodes.
+
+    Returns:
+    dict: A dictionary mapping each node index to its degrees of freedom.
+    """
+    dof = {}
+    for i in range(len(nodes)):
+        dof[i] = [f'ux{i+1}', f'uy{i+1}', f'uz{i+1}', f'rot_x{i+1}', f'rot_y{i+1}', f'rot_z{i+1}'] 
+        dof[f'dof_{i+1}'] = list(range(i*6, (i+1)*6))
+    return dof

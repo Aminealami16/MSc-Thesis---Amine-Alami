@@ -12,15 +12,25 @@ from mpl_toolkits.mplot3d import Axes3D
 
 def plot_elements(elements):
     
-    fig = plt.figure()
+    fig = plt.figure(figsize=(25, 25))
     ax = fig.add_subplot(111, projection='3d')
 
-    for element in elements:
-        n1, n2, _ = element
+    for i, element in enumerate(elements):
+        n1, n2, _, _ = element
         x = [n1[0], n2[0]]
         y = [n1[1], n2[1]]
         z = [n1[2], n2[2]]
         ax.plot(x, y, z, 'b-')
+        
+        # Plot nodes
+        ax.scatter(*n1, color='red', s=50)
+        ax.scatter(*n2, color='red', s=50)
+        
+        # Add element number at midpoint
+        mid_x = (n1[0] + n2[0]) / 2
+        mid_y = (n1[1] + n2[1]) / 2
+        mid_z = (n1[2] + n2[2]) / 2
+        ax.text(mid_x, mid_y, mid_z, str(i), fontsize=15, color='black')
     
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
@@ -28,6 +38,32 @@ def plot_elements(elements):
     ax.set_zlim(0, 100)
     plt.show()
     
+def plot_elements2d(elements):
+    """
+    Plot elements in 2D using x and y coordinates.
+    """
+    fig, ax = plt.subplots(figsize=(20, 20))
+    
+    for i, element in enumerate(elements):
+        n1, n2, _, _ = element
+        x = [n1[0], n2[0]]
+        y = [n1[1], n2[1]]
+        ax.plot(x, y, 'b-')
+        
+        # Plot nodes
+        ax.scatter(*n1[:2], color='red', s=50)
+        ax.scatter(*n2[:2], color='red', s=50)
+        
+        # Add element number at midpoint
+        mid_x = (n1[0] + n2[0]) / 2
+        mid_y = (n1[1] + n2[1]) / 2
+        ax.text(mid_x, mid_y, str(i), fontsize=15, color='black')
+    
+    ax.set_xlabel('X axis')
+    ax.set_ylabel('Y axis')
+    ax.set_aspect('equal')
+    plt.show()
+
 
 def elements(n1, n2, ep_K, ep_M):
     """
@@ -43,7 +79,7 @@ def elements(n1, n2, ep_K, ep_M):
     ex = [n1[0], n2[0]]
     ey = [n1[1], n2[1]]
     ez = [n1[2], n2[2]]
-    eo = [0, 0, 1]
+    eo = [0, -1, 0]
 
     M_e, K_e = tm.T_element(ex, ey, ez, eo, ep_K, ep_M)
 
@@ -101,3 +137,29 @@ def expand_eigenvectors(eigvecs_reduced, keep_dofs, total_dofs):
     return eigvecs_full
 
 
+
+def extract_displacement(arr, keep=3, skip=3):
+    """
+    arr: 2D numpy array where each column is an eigenvector
+    keep: number of rows to keep in each cycle
+    skip: number of rows to skip in each cycle
+    """
+    n_rows = arr.shape[0]
+    step = keep + skip
+
+    # Generate the indices once
+    idx = np.hstack([
+        np.arange(i, min(i + keep, n_rows))
+        for i in range(0, n_rows, step)
+    ])
+
+    # Apply same row indices to ALL columns → returns a compact matrix
+    return arr[idx, :]
+
+
+def remove_close_frequencies(frequencies, threshold=1e-3):
+    unique_freqs = []
+    for freq in frequencies:
+        if all(abs(freq - uf) > threshold for uf in unique_freqs):
+            unique_freqs.append(freq)
+    return np.array(unique_freqs)
