@@ -48,4 +48,30 @@ def effective_retaining_wall_stiffness():
     '''
     pass
 
+def stiffness_fenders():
+
+    '''Calculates the stiffness of the fenders to be used in a Timoshenko beam model
+
+    '''
+
+    K_spring_linear =4 * (250 * 1000) / (90 / 1000) # retrieved from report Handboek 2: Kerende wand en vakwerkarmen
+    return K_spring_linear
+   
+
+
+def stiffness_connecting_beams():
+
+    '''Calculates the stiffness of the connecting beams to be used in a Timoshenko beam model
+    '''
+    h = 18
+    d_out = 1.8 
+    d_in = 1.8  - (2 * 80) / 1000
+    A = np.pi * (d_out/2)**2 - np.pi * (d_in/2)**2
+    Iy = 2 * ( (np.pi / 4) * ((d_out/2)**4 - (d_in/2)**4) + A * (h/2)**2) 
+    Iz = 2 * ( (np.pi / 4) * ((d_out/2)**4 - (d_in/2)**4) )
+    Ip = Iy + Iz    
+    It = Ip
+    
+
+    return Iy, Iz, Ip, It, A
 
