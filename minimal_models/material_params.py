@@ -23,8 +23,8 @@ def effective_truss_stiffness(d1, d2,t1, t2, L, h):
     y_NC = (0.25 * np.pi * (d2 - 2 * t2)**2  * L + 0.25 * np.pi * (d2 - 2 * t2)**2  * 0.5*L) / (0.25 * np.pi * (d2 - 2 * t2)**2  * 3)
 
     # Calculate the area of the diagonal and horizontal truss elements
-    A1 = np.pi * (d1/2)**2 - np.pi * ((d1/2) - t1)**2
-    A2 = np.pi * (d2/2)**2 - np.pi * ((d2/2) - t2)**2
+    A1 = np.pi * (d1/2)**2 - np.pi * ((d1/2) - 2 * t1)**2
+    A2 = np.pi * (d2/2)**2 - np.pi * ((d2/2) - 2 * t2)**2
 
     # Calculate the moment of inertia for the diagonal and horizontal truss elements around the y-axis (strong axis)
     I1y = (np.pi / 4) * ((d1/2)**4 - ((d1/2) - t1)**4)
@@ -32,7 +32,7 @@ def effective_truss_stiffness(d1, d2,t1, t2, L, h):
     I2z = I2y
 
     # Calculate the effective area and moment of inertia for the Timoshenko beam model
-    A_eq = A1 + A2 + 2 * A2 # Adding the contribution of the horizontal truss elements and he diagonal truss elements
+    A_eq = A1 * 4 + A2 + 2 * A2 # Adding the contribution of the horizontal truss elements and he diagonal truss elements
     I_eqy  = 2 * (I2y + A2 * z_NCy**2) + I2y + A2 * (h - z_NCy)**2 # Moment of inertia is only based on the top and bottom rules
     I_eqz = I2z + A2 * y_NC**2 + I2z + A2 * (L - y_NC)**2 + I2z + A2 * (0.5*L - y_NC)**2 # Moment of inertia is based on all horizontal truss elements
     b_eq = A_eq / h 
@@ -40,13 +40,30 @@ def effective_truss_stiffness(d1, d2,t1, t2, L, h):
 
 
     
-def effective_retaining_wall_stiffness():
+def effective_retaining_wall_stiffness(t):
 
     '''Calculates the effective stiffness of a retaining wall to be used in a Timoshenko beam model
-
-    This function is a placeholder and should be implemented based on the specific geometry and material properties of the retaining wall.
     '''
-    pass
+    h = 22 #m
+    h1 = 14.5 #m
+    h2 = 7.5 #m
+    b1 = 8 #m
+    b2 = 12 #m
+
+
+
+    z_NC = (t * b1 * 0 + h * t * 0.5 * h + h1 * t * 0.5 * h1 + (b2 - b1) * t * h1 + h2 * t * (h2 * 0.5 + h1) + b2 * t * h) / (2 * t * h + b1 * t + b2 * t + (b2 - b1) * t)
+    y_NC = (h * t * 0 + t * b1 * 0.5 * b1 + t * b2 * 0.5 * b2 + h1 * t * b1 + h2 * t * b2 + (b2 - b1) * t * (b1 + 0.5 * (b2 - b1))) / (2 * t * h + b1 * t + b2 * t + (b2- b1) * t)
+    I_eqy = (1/12) * b1 * t**3 + (1/12) * t * h**3 + (1/12) * t * h1**3 + (1/12) * t * h2**3 + (1/12) * (b2 - b1) * t**3 + (1/12) * b2 * t**3 + b1 * t * z_NC**2 + t * h * (z_NC - 0.5 * h)**2 + h1 * t * (0.5*h1 - z_NC)**2 + h2 * t * (h1 + 0.5 * h2 - z_NC)**2 + b2 * t * (h - z_NC)**2 + (b2 - b1) * t * (z_NC - h1)**2
+    I_eqz = (1/12) * h * t ** 3 + (1/12) * t * b2**3 + (1/12) * t * b1**3 + (1/12) * h1 * t**3 + (1/12) * t * (b2 - b1) **3  + (1/12) * h2 * t**3 + h * t * y_NC**2 + b1 * t * (y_NC - 0.5 * b1)**2 + b2 * t * (y_NC - 0.5 * b2)**2 + h1 * t * (b1 - y_NC)**2 + h2 * t * (b2 - y_NC)**2 + (b2 - b1) * t * (b1+ 0.5 * (b2 - b1) - y_NC)**2
+
+    A_eq = 2 * t * h + b1 * t + b2 * t + (b2 - b1) * t
+    b_eq = A_eq / h
+
+    return A_eq, I_eqy, I_eqz, b_eq
+
+
+
 
 def stiffness_fenders():
 
@@ -54,7 +71,8 @@ def stiffness_fenders():
 
     '''
 
-    K_spring_linear = 4 * (250 * 1000) / (90 / 1000) # retrieved from report Handboek 2: Kerende wand en vakwerkarmen
+    # K_spring_linear = 4 * (250 * 1000) / (90 / 1000) # retrieved from report Handboek 2: Kerende wand en vakwerkarmen
+    K_spring_linear = ((1200+1750) / 2) * 10**6  # Retrieved from HVR engineering report
     return K_spring_linear
    
 

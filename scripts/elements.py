@@ -86,6 +86,26 @@ def elements(n1, n2, ep_K, ep_M):
     return n1, n2, M_e, K_e
 
 
+def elements_added_mass(n1, n2, ep_K, ep_M):
+    """
+    Create an element connecting two nodes.
+
+    Parameters:
+    n1 (np.ndarray): Coordinates of the first node.
+    n2 (np.ndarray): Coordinates of the second node.
+
+    Returns:
+    tuple: A tuple containing the coordinates of the two nodes.
+    """
+    ex = [n1[0], n2[0]]
+    ey = [n1[1], n2[1]]
+    ez = [n1[2], n2[2]]
+    eo = [0, -1, 0]
+
+    M_e, K_e = tm.T_element_added_mass_retaining_wall(ex, ey, ez, eo, ep_K, ep_M)
+
+    return n1, n2, M_e, K_e
+
 
 def hermite_shape_functions(xi, L):
     """

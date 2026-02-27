@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def M_local(ex,ey,ez,ep_M):
+def M_local(ex,ey,ez,ep_M, type):
        
 ## Function that contains the mass matrix for a Timoshenko beam element in local coordinate system
 ## Input: 
@@ -47,7 +47,29 @@ def M_local(ex,ey,ez,ep_M):
        Me[0:6,6:]  = me * Me21.T
        Me[6:,6:]   = -me * Me11 + 2 * me * np.diag(np.diagonal(Me11))
    
-       return Me
+       h1 = 7.5
+       b2 = 12
+       r1 = 237.5
+       r2 = 237.5 + b2
+       alpha = 50
+
+       added_volume_total = (alpha / 360)  * np.pi * (r2**2 - r1**2) * h1
+       water_density = 1025
+       added_mass_total = added_volume_total * water_density
+       me_added = added_mass_total / (120 - 71)
+       
+       Me_added = np.zeros((12,12))
+       Me_added[0:6,0:6] = me_added * Me11
+       Me_added[6:,0:6]  = me_added * Me21
+       Me_added[0:6,6:]  = me_added * Me21.T
+       Me_added[6:,6:]   = -me_added * Me11 + 2 * me_added * np.diag(np.diagonal(Me11))
+      
+
+       if type == 'normal':
+              return Me
+       elif type == 'added mass':
+              return Me + Me_added
+       
 
 
 def K_local(ex,ey,ez,ep_K):
@@ -170,7 +192,41 @@ def T_element(ex,ey,ez,eo,ep_K,ep_M):
 ## Output: matrices of 12x12 containing the mass and stiffness matrices of a three-dimensional 2-node Timoshenko beam element
    
        K_l = K_local(ex, ey, ez, ep_K)
-       M_l = M_local(ex, ey, ez, ep_M)
+       M_l = M_local(ex, ey, ez, ep_M, type='normal')
+       G   = rotation(ex,ey,ez,eo)
+       
+       K_e = G.T*K_l*G
+       M_e = G.T*M_l*G
+       
+       return M_e, K_e
+
+
+def T_element_added_mass_retaining_wall(ex,ey,ez,eo,ep_K,ep_M):
+
+## Function that contains the mass and stiffness matrices for a Timoshenko beam element in global coordinate system
+## Input: 
+              ## ex = [x1, x2] [m]
+              ## ey = [y1, y2] [m]
+              ## ez = [z1, z2] [m]
+              ## eo = [xz, yz, zz] --> global vector parallel with the positive local z axis of the beam 
+              ## ep_K = [E, G, A, Iy, Iz, It, k]            
+                     # E: modulus of elasticity [N/m^2]
+                     # G: shear modulus [N/m^2]
+                     # A: cross section area [m^2] 
+                     # Iy: moment of inertia with respect to local y axis [m^4]
+                     # Iz: moment of inertia with respect to local z axis [m^4]
+                     # It: torsional moment of inertia [m^4]
+                     # k: shear correction factor [-]
+              ## ep_M = [rho, A, Iy, Iz, Ip]
+                     # rho: density [kg/m^3]
+                     # A: cross section area [m^2]
+                     # Iy: moment of inertia with respect to local y axis [m^4]
+                     # Iz: moment of inertia with respect to local z axis [m^4]
+                     # Ip: polar moment of inertia [m^4]
+## Output: matrices of 12x12 containing the mass and stiffness matrices of a three-dimensional 2-node Timoshenko beam element
+   
+       K_l = K_local(ex, ey, ez, ep_K)
+       M_l = M_local(ex, ey, ez, ep_M, type='added mass')
        G   = rotation(ex,ey,ez,eo)
        
        K_e = G.T*K_l*G
