@@ -57,7 +57,6 @@ def M_local(ex,ey,ez,ep_M, type):
        water_density = 1025
        added_mass_total = added_volume_total * water_density
        me_added = added_mass_total / (120 - 71)
-       
        Me_added = np.zeros((12,12))
        Me_added[0:6,0:6] = me_added * Me11
        Me_added[6:,0:6]  = me_added * Me21

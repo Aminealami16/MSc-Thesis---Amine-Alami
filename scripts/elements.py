@@ -79,7 +79,7 @@ def elements(n1, n2, ep_K, ep_M):
     ex = [n1[0], n2[0]]
     ey = [n1[1], n2[1]]
     ez = [n1[2], n2[2]]
-    eo = [0, -1, 0]
+    eo = [0, 0, -1]
 
     M_e, K_e = tm.T_element(ex, ey, ez, eo, ep_K, ep_M)
 
@@ -100,7 +100,8 @@ def elements_added_mass(n1, n2, ep_K, ep_M):
     ex = [n1[0], n2[0]]
     ey = [n1[1], n2[1]]
     ez = [n1[2], n2[2]]
-    eo = [0, -1, 0]
+    eo = [0, 0, -1]
+
 
     M_e, K_e = tm.T_element_added_mass_retaining_wall(ex, ey, ez, eo, ep_K, ep_M)
 
@@ -175,6 +176,30 @@ def extract_displacement(arr, keep=3, skip=3):
 
     # Apply same row indices to ALL columns → returns a compact matrix
     return arr[idx, :]
+
+import numpy as np
+
+def extract_rotation(arr, keep=3, skip=3):
+    """
+    arr: 2D numpy array where each column is an eigenvector
+    keep: number of rotational DOFs to keep in each cycle (default 3: θx, θy, θz)
+    skip: number of translational DOFs to skip in each cycle (default 3: ux, uy, uz)
+    
+    Returns a compact array of rotational DOFs
+    """
+    n_rows = arr.shape[0]
+    step = keep + skip
+
+    # Generate indices for rotations
+    idx = np.hstack([
+        np.arange(i + skip, min(i + step, n_rows))  # start after skip rows
+        for i in range(0, n_rows, step)
+    ])
+
+    return arr[idx, :]
+
+
+
 
 
 def remove_close_frequencies(frequencies, threshold=1e-3):

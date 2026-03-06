@@ -32,7 +32,7 @@ def effective_truss_stiffness(d1, d2,t1, t2, L, h):
     I2z = I2y
 
     # Calculate the effective area and moment of inertia for the Timoshenko beam model
-    A_eq = A1 * 4 + A2 + 2 * A2 # Adding the contribution of the horizontal truss elements and he diagonal truss elements
+    A_eq = A1 * 5 + A2 + 2 * A2 # Adding the contribution of the horizontal truss elements and he diagonal truss elements
     I_eqy  = 2 * (I2y + A2 * z_NCy**2) + I2y + A2 * (h - z_NCy)**2 # Moment of inertia is only based on the top and bottom rules
     I_eqz = I2z + A2 * y_NC**2 + I2z + A2 * (L - y_NC)**2 + I2z + A2 * (0.5*L - y_NC)**2 # Moment of inertia is based on all horizontal truss elements
     b_eq = A_eq / h 
