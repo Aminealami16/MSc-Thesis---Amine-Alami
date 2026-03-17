@@ -1,14 +1,16 @@
 import numpy as np
 
-def effective_truss_stiffness(d1, d2,t1, t2, L, h): 
+def effective_truss_stiffness(d1, d2,t1, t2, h, b): 
     '''Calculates equivalent moment of inertia and area to be used in a Timoshenko beam model
+
+    Inputs:
 
     d1: Diameter of the diagonal truss elements
     d2: Diameter of the horizontal truss elements
     t1: Thickness of the diagonal truss elements
     t2: Thickness of the horizontal truss elements
-    L: Length of each truss section
     h: Height of the truss
+    b: Width of the truss
     z_NC: Distance from the neutral axis to the centroid of the truss elements
 
     returns:
@@ -16,41 +18,78 @@ def effective_truss_stiffness(d1, d2,t1, t2, L, h):
     I_eqy: Effective moment of inertia around the y-axis (strong axis)
     I_eqz: Effective moment of inertia around the z-axis (weak axis)
     b_eq: Effective width of the truss for shear deformation calculations
+    h_eq: Effective height of the truss for shear deformation calculations
     '''
-    # Calculate the neutral axis based on the top and bottom rules of the truss
-
-    z_NCy = (0.25 * np.pi * (d2 - 2 * t2)**2  * h) / (0.25 * np.pi * (d2 - 2 * t2)**2  * 3)
-    y_NC = (0.25 * np.pi * (d2 - 2 * t2)**2  * L + 0.25 * np.pi * (d2 - 2 * t2)**2  * 0.5*L) / (0.25 * np.pi * (d2 - 2 * t2)**2  * 3)
-
-    # Calculate the area of the diagonal and horizontal truss elements
+    
     A1 = np.pi * (d1/2)**2 - np.pi * ((d1/2) - 2 * t1)**2
     A2 = np.pi * (d2/2)**2 - np.pi * ((d2/2) - 2 * t2)**2
 
-    # Calculate the moment of inertia for the diagonal and horizontal truss elements around the y-axis (strong axis)
-    I1y = (np.pi / 4) * ((d1/2)**4 - ((d1/2) - t1)**4)
-    I2y = (np.pi / 4) * ((d2/2)**4 - ((d2/2) - t2)**4)
-    I2z = I2y
+    z_NC = (A2 * 0 +  2 * h * A2) / (3 * A2)
+    y_NC = (A2 * 0 + A2 * 0.5 * b + A2 * b) / (3 * A2)
+    I = (np.pi / 4) * ((d2/2)**4 - ((d2/2) - t2)**4)
+    Iy_eq = I + A2 * z_NC**2 + 2 * (I + A2 * (h - z_NC)**2)
+    Iz_eq = I + A2 * y_NC**2 + I + A2 * (0.5 * b - y_NC)**2 + I + A2 * (b - y_NC)**2
+    A_eq = A1 * 5 + A2 * 3
+    b_eq  = ((Iz_eq**3) / (Iy_eq* (1/12)**2))**(1/8)
+    h_eq = Iz_eq / ((1/12)* b_eq**3)
 
-    # Calculate the effective area and moment of inertia for the Timoshenko beam model
-    A_eq = A1 * 5 + A2 + 2 * A2 # Adding the contribution of the horizontal truss elements and he diagonal truss elements
-    I_eqy  = 2 * (I2y + A2 * z_NCy**2) + I2y + A2 * (h - z_NCy)**2 # Moment of inertia is only based on the top and bottom rules
-    I_eqz = I2z + A2 * y_NC**2 + I2z + A2 * (L - y_NC)**2 + I2z + A2 * (0.5*L - y_NC)**2 # Moment of inertia is based on all horizontal truss elements
-    b_eq = A_eq / h 
-    return A_eq, I_eqy, I_eqz, b_eq
+
+    # Iy_eq = (I + A2 * z_NC**2 + 2 * (I + A2 * (h - z_NC)**2)) #* 0.065
+    # Iz_eq = Iy_eq*0.9
+
+    # Iy_eq = 20
+    # Iz_eq = 0.9*Iy_eq
+
+    # h_eq = h
+    # b_eq  = ((Iz_eq**3) / (Iy_eq* (1/12)**2))**(1/8)
+    # A_eq = b_eq * h_eq
+
+
+    Iy_eq = 116*2.6
+    Iz_eq = 0.85*Iy_eq
+    b_eq  = ((Iz_eq**3) / (Iy_eq* (1/12)**2))**(1/8)
+    h_eq = Iz_eq / ((1/12)* b_eq**3)
+    A_eq = A1 * 5 + A2 * 3
+    # A_eq = b_eq * h_eq
+
+
+    return A_eq, Iy_eq, Iz_eq, b_eq, h_eq
+
+
+
+
+
 
 
     
 def effective_retaining_wall_stiffness(t):
 
     '''Calculates the effective stiffness of a retaining wall to be used in a Timoshenko beam model
+
+    Inputs:
+    t: Thickness of the retaining wall
+
+    parameters:
+    h: Height of the retaining wall
+    h1: Height of the first step of the retaining wall
+    h2: Height of the second step of the retaining wall
+    b1: Width of the lower part of the retaining wall
+    b2: Width of the upper part of the retaining wall
+    z_NC: Distance from the neutral axis to the centroid of the retaining wall elements
+    y_NC: Distance from the neutral axis to the centroid of the retaining wall elements in the horizontal direction
+
+
+    returns:
+    A_eq: Effective area of the retaining wall
+    I_eqy: Effective moment of inertia around the y-axis (strong axis)
+    I_eqz: Effective moment of inertia around the z-axis (weak axis)
+    b_eq: Effective width of the retaining wall for shear deformation calculations
     '''
     h = 22 #m
     h1 = 14.5 #m
     h2 = 7.5 #m
     b1 = 8 #m
     b2 = 12 #m
-
-
 
     z_NC = (t * b1 * 0 + h * t * 0.5 * h + h1 * t * 0.5 * h1 + (b2 - b1) * t * h1 + h2 * t * (h2 * 0.5 + h1) + b2 * t * h) / (2 * t * h + b1 * t + b2 * t + (b2 - b1) * t)
     y_NC = (h * t * 0 + t * b1 * 0.5 * b1 + t * b2 * 0.5 * b2 + h1 * t * b1 + h2 * t * b2 + (b2 - b1) * t * (b1 + 0.5 * (b2 - b1))) / (2 * t * h + b1 * t + b2 * t + (b2- b1) * t)
@@ -69,6 +108,11 @@ def stiffness_fenders():
 
     '''Calculates the stiffness of the fenders to be used in a Timoshenko beam model
 
+    Inputs:
+    None
+
+    returns:
+    K_spring_linear: Linear stiffness of the fenders [N/m]
     '''
 
     # K_spring_linear = 4 * (250 * 1000) / (90 / 1000) # retrieved from report Handboek 2: Kerende wand en vakwerkarmen
@@ -80,6 +124,21 @@ def stiffness_fenders():
 def stiffness_connecting_beams():
 
     '''Calculates the stiffness of the connecting beams to be used in a Timoshenko beam model
+
+    Inputs:
+    None
+
+    Parameters:
+    h: Height of the connecting beams
+    d_out: Outer diameter of the connecting beams
+    d_in: Inner diameter of the connecting beams
+
+    returns:
+    Iy: Moment of inertia around the y-axis (strong axis) of the connecting beams
+    Iz: Moment of inertia around the z-axis (weak axis) of the connecting beams
+    Ip: Polar moment of inertia of the connecting beams
+    It: Torsional constant of the connecting beams
+    A: Cross-sectional area of the connecting beams
     '''
     h = 18
     d_out = 1.8 

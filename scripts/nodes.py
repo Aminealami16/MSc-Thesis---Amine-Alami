@@ -19,8 +19,11 @@ def plot_nodes(nodes):
     """
     Plot the nodes in a 3D space.
 
-    Parameters:
+    Inputs:
     nodes (np.ndarray): A 3D array containing the coordinates of the nodes.
+
+    returns:
+    A 3D plot of the nodes with node numbers.
     """
     fig = plt.figure(figsize=(15, 15))
     ax = fig.add_subplot(111, projection='3d')
@@ -39,8 +42,12 @@ def plot_nodes2d(nodes):
     """
     Plot the nodes in 2D space (x-y plane).
 
-    Parameters:
+
+    Inputs:
     nodes (np.ndarray): A 3D array containing the coordinates of the nodes.
+
+    returns:
+    A 2D plot of the nodes with node numbers.
     """
     fig, ax = plt.subplots(figsize=(20, 20))
 
@@ -61,7 +68,7 @@ def degrees_of_freedom(nodes):
     """
     Assign degrees of freedom to each node.
 
-    Parameters:
+    Inputs:
     nodes (np.ndarray): A 3D array containing the coordinates of the nodes.
 
     Returns:

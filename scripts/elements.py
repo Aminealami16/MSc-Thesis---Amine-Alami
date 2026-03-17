@@ -11,7 +11,18 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 def plot_elements(elements):
+
+    """
+    Plot elements in 3D.
+
+    Inputs:
+    elements: List of tuples, where each tuple contains the coordinates of the two nodes and the element matrices (M_e, K_e).
+              Each tuple should be in the form (n1, n2, M_e, K_e), where n1 and n2 are 3D coordinates of the nodes.
+
     
+    returns:
+    A 3D plot of the elements with node numbers at the midpoints.   
+    """
     fig = plt.figure(figsize=(25, 25))
     ax = fig.add_subplot(111, projection='3d')
 
@@ -40,7 +51,14 @@ def plot_elements(elements):
     
 def plot_elements2d(elements):
     """
-    Plot elements in 2D using x and y coordinates.
+    Plot elements in 2D. 
+
+    Inputs:
+    elements: List of tuples, where each tuple contains the coordinates of the two nodes and the element matrices (M_e, K_e).
+              Each tuple should be in the form (n1, n2, M_e, K_e), where n1 and n2 are 2D coordinates of the nodes. 
+
+    returns:
+    A 2D plot of the elements with node numbers at the midpoints.
     """
     fig, ax = plt.subplots(figsize=(20, 20))
     
@@ -79,7 +97,7 @@ def elements(n1, n2, ep_K, ep_M):
     ex = [n1[0], n2[0]]
     ey = [n1[1], n2[1]]
     ez = [n1[2], n2[2]]
-    eo = [0, 0, -1]
+    eo = [0, 0 , 1]
 
     M_e, K_e = tm.T_element(ex, ey, ez, eo, ep_K, ep_M)
 
@@ -100,7 +118,7 @@ def elements_added_mass(n1, n2, ep_K, ep_M):
     ex = [n1[0], n2[0]]
     ey = [n1[1], n2[1]]
     ez = [n1[2], n2[2]]
-    eo = [0, 0, -1]
+    eo = [0, 0 , 1]
 
 
     M_e, K_e = tm.T_element_added_mass_retaining_wall(ex, ey, ez, eo, ep_K, ep_M)
@@ -108,35 +126,13 @@ def elements_added_mass(n1, n2, ep_K, ep_M):
     return n1, n2, M_e, K_e
 
 
-def hermite_shape_functions(xi, L):
-    """
-    Returns the 4 Hermite cubic shape functions evaluated at xi.
-    
-    Parameters:
-    xi : float or array
-        Normalized coordinate along element (0 <= xi <= 1)
-    L : float
-        Element length (for scaling slope terms)
-    
-    Returns:
-    H : array of shape (4,)
-        Hermite cubic functions [H1, H2, H3, H4]
-    """
-    H1 = 1 - 3*xi**2 + 2*xi**3
-    H2 = xi - 2*xi**2 + xi**3
-    H3 = 3*xi**2 - 2*xi**3
-    H4 = -xi**2 + xi**3
-    
-    return np.array([H1, H2*L, H3, H4*L])
-
 
 def expand_eigenvectors(eigvecs_reduced, keep_dofs, total_dofs):
     """
     Expand reduced eigenvectors to full DOF size by inserting zeros
     at constrained DOFs.
     
-    Parameters:
-    -----------
+    Inputs::
     eigvecs_reduced : array, shape (num_free_dofs, num_modes)
         Eigenvectors from reduced system
     keep_dofs : list or array
@@ -161,9 +157,14 @@ def expand_eigenvectors(eigvecs_reduced, keep_dofs, total_dofs):
 
 def extract_displacement(arr, keep=3, skip=3):
     """
+    Extract displacement DOFs from a 2D array of eigenvectors.
+
+    Inputs:
     arr: 2D numpy array where each column is an eigenvector
     keep: number of rows to keep in each cycle
     skip: number of rows to skip in each cycle
+
+    Returns a compact array of displacement DOFs
     """
     n_rows = arr.shape[0]
     step = keep + skip
@@ -177,7 +178,6 @@ def extract_displacement(arr, keep=3, skip=3):
     # Apply same row indices to ALL columns → returns a compact matrix
     return arr[idx, :]
 
-import numpy as np
 
 def extract_rotation(arr, keep=3, skip=3):
     """
@@ -198,13 +198,23 @@ def extract_rotation(arr, keep=3, skip=3):
 
     return arr[idx, :]
 
+def set_equal_aspect(fig, X, Y, Z):
+    max_range = max(
+        max(X) - min(X),
+        max(Y) - min(Y),
+        max(Z) - min(Z)
+    ) / 2.0
 
+    mid_x = (max(X) + min(X)) / 2.0
+    mid_y = (max(Y) + min(Y)) / 2.0
+    mid_z = (max(Z) + min(Z)) / 2.0
 
-
-
-def remove_close_frequencies(frequencies, threshold=1e-3):
-    unique_freqs = []
-    for freq in frequencies:
-        if all(abs(freq - uf) > threshold for uf in unique_freqs):
-            unique_freqs.append(freq)
-    return np.array(unique_freqs)
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(range=[mid_x - max_range, mid_x + max_range]),
+            yaxis=dict(range=[mid_y - max_range, mid_y + max_range]),
+            zaxis=dict(range=[mid_z - max_range, mid_z + max_range]),
+            aspectmode='manual',
+            aspectratio=dict(x=1, y=1, z=1)
+        )
+    )
