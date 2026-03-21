@@ -98,8 +98,11 @@ def effective_retaining_wall_stiffness(t):
 
     A_eq = 2 * t * h + b1 * t + b2 * t + (b2 - b1) * t
     b_eq = A_eq / h
+    m = 6e6 
+    L_tot = 237.5*2* np.pi * (50/360)
+    rho = m / ( A_eq * L_tot)
 
-    return A_eq, I_eqy, I_eqz, b_eq
+    return A_eq, I_eqy, I_eqz, b_eq, rho
 
 
 
@@ -143,11 +146,11 @@ def stiffness_connecting_beams():
     h = 18
     d_out = 1.8 
     d_in = 1.8  - (2 * 80) / 1000
-    A = np.pi * (d_out/2)**2 - np.pi * (d_in/2)**2
+    A = 2 * np.pi * (d_out/2)**2 - np.pi * (d_in/2)**2
     Iy = 2 * ( (np.pi / 4) * ((d_out/2)**4 - (d_in/2)**4) + A * (h/2)**2) 
     Iz = 2 * ( (np.pi / 4) * ((d_out/2)**4 - (d_in/2)**4) )
     Ip = Iy + Iz    
-    It = Ip
+    It = Ip 
     
 
     return Iy, Iz, Ip, It, A
