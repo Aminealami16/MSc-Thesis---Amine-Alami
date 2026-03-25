@@ -25,7 +25,7 @@ def plot_nodes(nodes):
     returns:
     A 3D plot of the nodes with node numbers.
     """
-    fig = plt.figure(figsize=(15, 15))
+    fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
 
     for i in range(len(nodes)):
