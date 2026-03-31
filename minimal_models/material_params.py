@@ -98,7 +98,7 @@ def effective_retaining_wall_stiffness(t):
 
     A_eq = 2 * t * h + b1 * t + b2 * t + (b2 - b1) * t
     b_eq = A_eq / h
-    m = 6800000
+    m =  6455148
     L_tot = 237.5*2* np.pi * (50/360)
     rho = m / ( A_eq * L_tot)
 
